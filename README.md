@@ -52,108 +52,32 @@ Sistema_cotizacion_carrito_dinamico/
 │       └── /img
 └── README.md
 
-## 🔧 Requisitos
+##  Guía de Instalación y Despliegue Local
 
-- PHP 7.4+
-- MySQL 5.7+
-- Apache con mod_rewrite
-- Bootstrap 5.3.2 (CDN)
+Sigue estos pasos para configurar y ejecutar el proyecto en tu propio entorno de desarrollo:
 
-## 📦 Instalación
+1. **Clonar el repositorio:**
+   Descarga o haz un `pull` de la rama `main` de este repositorio. Asegúrate de colocar los archivos dentro de la carpeta pública de tu servidor local (por ejemplo, la carpeta `htdocs` si usas XAMPP, o `www` si usas WampServer).
 
-1. Base de datos:
-```sql
-CREATE DATABASE sistema_cotizacion;
-````
+2. **Iniciar el entorno local:**
+   Abre tu programa de servidor local (XAMPP, WampServer o el de tu preferencia) y asegúrate de encender los servicios de **Apache** y **MySQL**.
 
-2. Configurar `/app/config/database.php`:
+3. **Configurar la base de datos:**
+   Abre tu gestor de bases de datos MySQL (como phpMyAdmin o DBeaver). Crea una base de datos e importa el archivo `cotizador_db.sql` que se incluye en este proyecto para cargar la estructura y los datos iniciales.
 
-```php
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');
-define('DB_PASS', '');
-define('DB_NAME', 'sistema_cotizacion');
-```
+4. **Ejecutar el proyecto:**
+   Abre tu navegador web de preferencia e ingresa a la ruta local donde guardaste el proyecto (por ejemplo: `http://localhost/tu-carpeta-del-proyecto/public/`).
 
-3. Acceder a: `http://localhost/Sistema_cotizacion_carrito_dinamico/public/index.php`
+---
 
-## 🎯 Funcionalidades
+### 🔐 Credenciales de Acceso
 
-### Catálogo
+Para probar el sistema con privilegios completos, utiliza las siguientes credenciales de administrador:
 
-- 12+ servicios en cards responsivas
-- Organizados por categoría
-- Información completa del servicio
+* **Correo:** `admin@ejemplo.com`
+* **Contraseña:** `password`
 
-### Carrito Dinámico
-
-- Agregar/eliminar servicios (AJAX)
-- Cantidades 1-10 por servicio
-- Totales en tiempo real
-
-### Cálculos
-
-```
-Subtotal = Precio × Cantidad
-Descuento:
-  - $500-$999: 5%
-  - $1,000-$2,499: 10%
-  - $2,500+: 15%
-IVA = (Subtotal - Descuento) × 13%
-Total = Subtotal - Descuento + IVA
-```
-
-### Cotizaciones
-
-- Código único: COT-YYYY-####
-- Validación de datos cliente
-- Vencimiento: 7 días
-- Historial de cotizaciones
-
-## 🔐 Seguridad
-
-- Contraseñas hasheadas (bcrypt)
-- Validación dual
-- Sanitización de datos
-- Prepared statements
-- Control de sesiones
-
-## 📱 Diseño
-
-- Bootstrap 5 responsivo
-- Mobile-first approach
-- Animaciones suaves
-- Interfaz intuitiva
-
-## 📚 Clases Principales
-
-### Service
-
-- id, nombre, descripción, precio, categoría
-- getCatalogoCompleto()
-
-### Quote
-
-- código, cliente, items, subtotal, descuento, iva, total
-- agregarItem(), calcularSubtotal(), calcularDescuento(), calcularIVA(), calcularTotal()
-- generarCodigo(), validarMonto()
-
-### User
-
-- id, nombre, email, password, rol
-- hashPassword(), verifyPassword()
-
-## 🔗 API Endpoints
-
-- POST `/api/add-to-cart.php` - Agregar servicio
-- POST `/api/update-cart.php` - Actualizar cantidad
-- POST `/api/remove-from-cart.php` - Eliminar servicio
-- POST `/api/process-quote.php` - Generar cotización
-
-## 👥 Autor
-
-Desarrollado como proyecto académico - Universidad Don Bosco
-Escuela de Computación | Lenguajes Interpretados en Servidor
+> **💡 Nota sobre los roles:** El sistema cuenta con control de accesos. Por defecto, todos los usuarios nuevos que se registren en la plataforma tendrán asignado el rol estándar de **"user"**.
 
 ---
 
