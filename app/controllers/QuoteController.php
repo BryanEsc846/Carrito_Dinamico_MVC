@@ -4,15 +4,18 @@
 require_once '../app/models/Service.php';
 require_once '../app/models/Quote.php';
 
-class QuoteController {
+class QuoteController
+{
     private $db;
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->db = $db;
     }
 
     // Antiguo process-quote.php
-    public function process() {
+    public function process()
+    {
         if (empty($_SESSION['cart'])) {
             echo json_encode(["success" => false, "message" => "El carrito está vacío."]);
             exit;
@@ -25,13 +28,16 @@ class QuoteController {
         $telefono = trim($_POST['telefono'] ?? '');
 
         if (empty($nombre) || empty($email) || empty($telefono)) {
-            echo json_encode(["success" => false, "message" => "Faltan datos obligatorios."]); exit;
+            echo json_encode(["success" => false, "message" => "Faltan datos obligatorios."]);
+            exit;
         }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            echo json_encode(["success" => false, "message" => "Correo inválido."]); exit;
+            echo json_encode(["success" => false, "message" => "Correo inválido."]);
+            exit;
         }
         if (!preg_match('/^[\d\s\-+]{8,}$/', $telefono)) {
-            echo json_encode(["success" => false, "message" => "Teléfono inválido."]); exit;
+            echo json_encode(["success" => false, "message" => "Teléfono inválido."]);
+            exit;
         }
 
         // 2. Preparamos el modelo con los datos de la BD
@@ -61,10 +67,10 @@ class QuoteController {
         $quote->calcularTotal();
 
         // 3. Generamos en BD (Usaremos el ID de sesión del usuario logueado, por ahora asumimos el ID 1)
-        $userId = $_SESSION['user_id'] ?? 1; 
-        
+        $userId = $_SESSION['user_id'] ?? 1;
+
         $cliente = ['nombre' => $nombre, 'empresa' => $empresa, 'email' => $email, 'telefono' => $telefono];
-        
+
         $resultado = $quote->generar($userId, $cliente);
 
         if ($resultado['success']) {
@@ -85,17 +91,81 @@ class QuoteController {
     }
 
     // NUEVO: Método para ver el historial (¡Ahora sí está adentro de la clase!)
-    public function history() {
+    public function history()
+    {
         // Obtenemos el ID del usuario logueado
         $userId = $_SESSION['user_id'] ?? null;
-        
+
         // Instanciamos el modelo y le pedimos las cotizaciones de este usuario
         $quoteModel = new Quote($this->db);
         $quotes = $quoteModel->readAllByUser($userId);
-        
+
         // Cargamos la vista pasándole la variable $quotes para que dibuje la tabla
         require_once '../app/views/quotes/history.php';
     }
 
+    // =========== NUEVOS MÉTODOS PARA ADMINISTRADOR ===========
+
+    // Vista: Dashboard de admin con estadísticas
+    public function adminDashboard()
+    {
+        // Verificar que sea admin
+        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+            header("Location: index.php?action=catalog");
+            exit;
+        }
+
+        $quoteModel = new Quote($this->db);
+
+        // Obtener estadísticas
+        $stats = [
+            'total_servicios' => 0,
+            'total_cotizaciones' => 0,
+            'total_ingresos' => 0
+        ];
+
+        // Obtener cotizaciones recientes (últimas 5)
+        $recent_quotes = $quoteModel->readAllRecent(5);
+
+        require_once '../app/views/services/dashboard.php';
+    }
+
+    // Vista: Listar todas las cotizaciones del sistema (admin)
+    public function adminQuotes()
+    {
+        // Verificar que sea admin
+        if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] !== 'admin') {
+            header("Location: index.php?action=catalog");
+            exit;
+        }
+
+        $quoteModel = new Quote($this->db);
+
+        // Obtener búsqueda si existe
+        $search = $_GET['search'] ?? '';
+
+        // Obtener todas las cotizaciones
+        if (!empty($search)) {
+            $quotes = $quoteModel->readAllWithSearch($search);
+        } else {
+            $quotes = $quoteModel->readAll();
+        }
+
+        // Calcular estadísticas
+        $stats = [
+            'total' => count($quotes),
+            'monto_total' => 0,
+            'promedio' => 0
+        ];
+
+        foreach ($quotes as $q) {
+            $stats['monto_total'] += $q['total'];
+        }
+
+        if ($stats['total'] > 0) {
+            $stats['promedio'] = $stats['monto_total'] / $stats['total'];
+        }
+
+        require_once '../app/views/quotes/quotes_list.php';
+    }
 } // <-- AQUÍ TERMINA LA CLASE REALMENTE
-?>

@@ -18,9 +18,9 @@ $action = $_GET['action'] ?? 'catalog';
 
 // ==========================================
 // GUARDIA DE SEGURIDAD GLOBAL
-// Si no hay sesión y la acción no es 'login', se bloquea el acceso
+// Si no hay sesión y la acción no es 'login' o 'register', se bloquea el acceso
 // ==========================================
-if (!isset($_SESSION['user_id']) && $action !== 'login') {
+if (!isset($_SESSION['user_id']) && $action !== 'login' && $action !== 'register') {
     header("Location: index.php?action=login");
     exit;
 }
@@ -30,6 +30,11 @@ switch ($action) {
     case 'login':
         $controller = new AuthController($db);
         $controller->login();
+        break;
+
+    case 'register':
+        $controller = new AuthController($db);
+        $controller->register();
         break;
 
     case 'logout':
@@ -69,8 +74,42 @@ switch ($action) {
         $controller->history();
         break;
 
+    // ==========================================
+    // RUTAS DEL PANEL DE ADMINISTRADOR
+    // ==========================================
+
+
+    case 'admin/services':
+        $controller = new ServiceController($db);
+        $controller->adminList();
+        break;
+
+    case 'admin/services/create':
+        $controller = new ServiceController($db);
+        $controller->adminCreate();
+        break;
+
+    case 'admin/services/edit':
+        $controller = new ServiceController($db);
+        $controller->adminEdit();
+        break;
+
+    case 'admin/services/delete':
+        $controller = new ServiceController($db);
+        $controller->delete();
+        break;
+
+    case 'admin/services/update':
+        $controller = new ServiceController($db);
+        $controller->update();
+        break;
+
+    case 'admin/quotes':
+        $controller = new QuoteController($db);
+        $controller->adminQuotes();
+        break;
+
     default:
         header("Location: index.php?action=catalog");
         break;
 }
-?>
