@@ -52,6 +52,8 @@ Sistema_cotizacion_carrito_dinamico/
 │       └── /img
 └── README.md
 
+````
+
 ##  Guía de Instalación y Despliegue Local
 
 Sigue estos pasos para configurar y ejecutar el proyecto en tu propio entorno de desarrollo:
